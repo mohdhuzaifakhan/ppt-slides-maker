@@ -6,7 +6,7 @@ import { type Slide } from "@shared/schema";
 // - Using gemini-2.5-pro-preview-05-06 model as requested by user for presentation generation
 
 // This API key is from Gemini Developer API Key, not vertex AI API Key
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const ai = new GoogleGenAI({ apiKey: 'AIzaSyDcyzoNQfwk6Q9aPFDVhn_SgDtAUVFzRkE'});
 
 interface SlideGenerationResponse {
   title: string;
