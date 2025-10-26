@@ -4,7 +4,7 @@ An AI-powered chat application for generating and editing PowerPoint presentatio
 
 ![AI PowerPoint Generator](https://img.shields.io/badge/AI-Powered-blue) ![React](https://img.shields.io/badge/React-18-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8)
 
-## 🚀 Features
+## Features
 
 - **AI-Powered Generation**: Uses Gemini 2.5 Pro model to generate professional presentation content from natural language prompts
 - **Chat Interface**: Intuitive chat-based UI similar to MagicSlides AI-Slide for seamless interaction
@@ -16,18 +16,18 @@ An AI-powered chat application for generating and editing PowerPoint presentatio
 - **Responsive Layout**: Dual-pane desktop layout (40% chat / 60% preview), mobile-optimized stacking
 - **Chat History**: Session-based message history preserved during active session
 
-## 📋 Requirements
+## Requirements
 
 - Node.js 20 or higher
 - Google Gemini API Key ([Get one here](https://aistudio.google.com/app/apikey))
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd ai-powerpoint-generator
+git clone https://github.com/mohdhuzaifakhan/ppt-slides-maker.git
+cd ppt-slides-maker
 ```
 
 ### 2. Install Dependencies
@@ -38,7 +38,7 @@ npm install
 
 ### 3. Configure API Key
 
-Create a `.env` file in the root directory or set up Replit Secrets:
+Create a `.env` file in the root directory:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -59,7 +59,7 @@ npm run dev
 
 The application will be available at `http://localhost:5000`
 
-## 💡 Usage Instructions
+## Usage Instructions
 
 ### Generating Your First Presentation
 
@@ -94,7 +94,7 @@ The application will be available at `http://localhost:5000`
 - **Keyboard Shortcuts**: Use arrow keys for quick navigation
 - **New Chat**: Click "New Chat" button to start a fresh presentation
 
-## 🏗️ Architecture
+## Architecture
 
 ### Technology Stack
 
@@ -148,7 +148,7 @@ The application will be available at `http://localhost:5000`
 - `POST /api/generate-slides`: Generate new presentation from prompt
 - `POST /api/update-slides`: Update existing presentation slides
 
-## 🎨 Design Philosophy
+## Design Philosophy
 
 The application follows Material Design 3 principles with Linear.app influences, emphasizing:
 
@@ -164,11 +164,11 @@ The application follows Material Design 3 principles with Linear.app influences,
 - Card: Subtle white with soft borders
 - Text: Gray scale for hierarchy (900, 600, 500)
 
-## 🔧 Configuration
+## Configuration
 
 ### Gemini Model Settings
 
-The application uses `gemini-2.5-pro-preview-05-06` model with:
+The application uses `gemini-2.5-flash` model with:
 - JSON response mode for structured output
 - System instructions for consistent formatting
 - Schema validation for type safety
@@ -183,7 +183,7 @@ The application uses `gemini-2.5-pro-preview-05-06` model with:
   - Content titles: 32pt
   - Bullet points: 20pt
 
-## 🚧 Assumptions Made
+## Assumptions Made
 
 1. **Session Persistence**: Chat history is stored in-memory and resets on server restart
 2. **Single User**: No authentication or multi-user support in current version
@@ -191,7 +191,7 @@ The application uses `gemini-2.5-pro-preview-05-06` model with:
 4. **Desktop-First**: Primary experience optimized for desktop (1024px+)
 5. **Browser Compatibility**: Modern browsers with ES2020+ support required
 
-## 📝 API Response Format
+## API Response Format
 
 The Gemini AI returns structured JSON matching this schema:
 
@@ -210,7 +210,7 @@ The Gemini AI returns structured JSON matching this schema:
 }
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -229,7 +229,7 @@ The Gemini AI returns structured JSON matching this schema:
 - Check browser download permissions
 - Verify sufficient disk space
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] Persistent database storage with PostgreSQL
 - [ ] Real-time streaming of slide generation progress
@@ -240,19 +240,3 @@ The Gemini AI returns structured JSON matching this schema:
 - [ ] Multi-user collaboration
 - [ ] Presentation history and version control
 - [ ] Advanced editing tools (fonts, colors, layouts)
-
-## 📄 License
-
-This project is open source and available for educational and commercial use.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues and pull requests.
-
-## 📧 Support
-
-For questions or issues, please open a GitHub issue or contact the development team.
-
----
-
-**Built with ❤️ using React, TypeScript, Gemini AI, and modern web technologies**
