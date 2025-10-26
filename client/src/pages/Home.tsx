@@ -22,6 +22,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [presentation, setPresentation] = useState<Presentation | null>(null);
   const [sessionId, setSessionId] = useState<string>("");
+  const pptx = new PptxGenJS();
   const [selectedSlideIndex, setSelectedSlideIndex] = useState<
     number | undefined
   >(undefined);
@@ -82,13 +83,46 @@ export default function Home() {
       pptx.company = "Your Company";
       pptx.subject = presentation.title;
       pptx.title = presentation.title;
-
-      // Define master slide with consistent branding
       pptx.defineSlideMaster({
         title: "MASTER_SLIDE",
         background: { color: theme.background },
         objects: [
-          // Footer line
+          // 🔷 Top Header Bar
+          {
+            shape: pptx.ShapeType.rect,
+            options: {
+              x: 0,
+              y: 0,
+              w: "100%",
+              h: 0.6,
+              fill: { color: theme.primary },
+            },
+          },
+          {
+            text: {
+              text: "Modern Presentation Template",
+              options: {
+                x: 0.6,
+                y: 0.15,
+                w: 8.5,
+                h: 0.5,
+                fontSize: 18,
+                color: theme.lightText,
+                bold: true,
+                align: "left",
+              },
+            },
+          },
+          {
+            line: {
+              x: 0,
+              y: 0.6,
+              w: "100%",
+              h: 0,
+              line: { color: theme.secondary, width: 1.5 },
+            },
+          },
+
           {
             line: {
               x: 0.5,
@@ -98,17 +132,33 @@ export default function Home() {
               line: { color: theme.secondary, width: 2 },
             },
           },
-          // Slide number
+
           {
             text: {
-              text: "",
+              text: "© 2025 EduTech Labs | All Rights Reserved",
+              options: {
+                x: 0.5,
+                y: 7.15,
+                w: 6,
+                h: 0.3,
+                fontSize: 10,
+                color: theme.subtle,
+                italic: true,
+                align: "left",
+              },
+            },
+          },
+
+          {
+            text: {
+              text: "%slide%",
               options: {
                 x: 9.0,
-                y: 7.2,
+                y: 7.15,
                 w: 0.5,
                 h: 0.3,
                 fontSize: 10,
-                color: theme.lightText,
+                color: theme.subtle,
                 align: "right",
               },
             },
@@ -131,11 +181,11 @@ export default function Home() {
         });
 
         if (slide.type === "title") {
-          createTitleSlide(pptSlide, slide, theme, index);
+          createTitleSlide(pptx, pptSlide, slide, theme, index);
         } else if (slide.type === "content") {
-          createContentSlide(pptSlide, slide, theme, index);
+          createContentSlide(pptx, pptSlide, slide, theme, index);
         } else if (slide.type === "section") {
-          createSectionSlide(pptSlide, slide, theme, index);
+          createSectionSlide(pptx, pptSlide, slide, theme, index);
         }
       });
 
@@ -156,91 +206,6 @@ export default function Home() {
       });
     }
   };
-
-  // const handleDownload = async () => {
-  //   if (!presentation) return;
-
-  //   try {
-  //     const pptx = new PptxGenJS();
-
-  //     presentation.slides.forEach((slide) => {
-  //       const pptSlide = pptx.addSlide();
-
-  //       if (slide.type === 'title') {
-  //         pptSlide.addText(slide.title, {
-  //           x: 0.5,
-  //           y: 2.0,
-  //           w: 9.0,
-  //           h: 1.5,
-  //           fontSize: 44,
-  //           bold: true,
-  //           color: '1F2937',
-  //           align: 'center',
-  //         });
-
-  //         if (slide.subtitle) {
-  //           pptSlide.addText(slide.subtitle, {
-  //             x: 0.5,
-  //             y: 3.5,
-  //             w: 9.0,
-  //             h: 0.8,
-  //             fontSize: 24,
-  //             color: '4B5563',
-  //             align: 'center',
-  //           });
-  //         }
-  //       } else if (slide.type === 'content') {
-  //         pptSlide.addText(slide.title, {
-  //           x: 0.5,
-  //           y: 0.5,
-  //           w: 9.0,
-  //           h: 0.8,
-  //           fontSize: 32,
-  //           bold: true,
-  //           color: '1F2937',
-  //         });
-
-  //         if (slide.content && slide.content.length > 0) {
-  //           const bulletPoints = slide.content.map(item => ({ text: item }));
-  //           pptSlide.addText(bulletPoints, {
-  //             x: 0.5,
-  //             y: 1.5,
-  //             w: 9.0,
-  //             h: 4.0,
-  //             fontSize: 20,
-  //             color: '374151',
-  //             bullet: { code: '2022', color: '2563EB' },
-  //           });
-  //         }
-  //       } else if (slide.type === 'section') {
-  //         pptSlide.addText(slide.title, {
-  //           x: 0.5,
-  //           y: 2.5,
-  //           w: 9.0,
-  //           h: 1.0,
-  //           fontSize: 36,
-  //           bold: true,
-  //           color: '1F2937',
-  //           align: 'center',
-  //         });
-  //       }
-  //     });
-
-  //     const blob = await pptx.write({ outputType: 'blob' });
-  //     saveAs(blob as Blob, `${presentation.title}.pptx`);
-
-  //     toast({
-  //       title: "Download Complete",
-  //       description: "Your presentation has been downloaded successfully.",
-  //     });
-  //   } catch (error) {
-  //     toast({
-  //       title: "Download Failed",
-  //       description: "Failed to download presentation. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
 
   return (
     <div className="flex h-screen overflow-hidden">

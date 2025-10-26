@@ -1,58 +1,68 @@
 import { GoogleGenAI } from "@google/genai";
 import { type Slide } from "@shared/schema";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+// Fix __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// DON'T DELETE THIS COMMENT
-// Follow these instructions when using this blueprint:
-// - Using gemini-2.0-flash-exp model for presentation generation with enhanced capabilities
-
-const ai = new GoogleGenAI({ apiKey: 'AIzaSyDcyzoNQfwk6Q9aPFDVhn_SgDtAUVFzRkE'});
-
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 interface SlideGenerationResponse {
   title: string;
   slides: Slide[];
 }
 
+console.log("KEY:", process.env.GEMINI_API_KEY)
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 // Free stock photo APIs for images
 const IMAGE_SOURCES = {
-  unsplash: (query: string) => `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
+  unsplash: (query: string) =>
+    `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
   picsum: () => `https://picsum.photos/1600/900`,
 };
 
 // Generate contextual image URL based on slide content
-function generateImageUrl(slide: Partial<Slide>, presentationTitle: string): string | undefined {
+function generateImageUrl(
+  slide: Partial<Slide>,
+  presentationTitle: string
+): string | undefined {
   // Only add images to title and section slides for visual impact
-  if (slide.type === 'title') {
-    const searchQuery = presentationTitle.toLowerCase()
-      .replace(/presentation|slides|deck/gi, '')
+  if (slide.type === "title") {
+    const searchQuery = presentationTitle
+      .toLowerCase()
+      .replace(/presentation|slides|deck/gi, "")
       .trim();
-    return IMAGE_SOURCES.unsplash(searchQuery || 'technology,business');
+    return IMAGE_SOURCES.unsplash(searchQuery || "technology,business");
   }
-  
-  if (slide.type === 'section' && slide.title) {
-    const searchQuery = slide.title.toLowerCase()
-      .replace(/section|chapter/gi, '')
+
+  if (slide.type === "section" && slide.title) {
+    const searchQuery = slide.title
+      .toLowerCase()
+      .replace(/section|chapter/gi, "")
       .trim();
-    return IMAGE_SOURCES.unsplash(searchQuery || 'abstract,minimal');
+    return IMAGE_SOURCES.unsplash(searchQuery || "abstract,minimal");
   }
-  
+
   // Content slides can optionally have images based on content
-  if (slide.type === 'content' && slide.title) {
+  if (slide.type === "content" && slide.title) {
     const keywords = slide.title.toLowerCase();
     // Add images for specific topics
-    if (keywords.includes('benefit') || keywords.includes('advantage')) {
-      return IMAGE_SOURCES.unsplash('success,growth');
+    if (keywords.includes("benefit") || keywords.includes("advantage")) {
+      return IMAGE_SOURCES.unsplash("success,growth");
     }
-    if (keywords.includes('challenge') || keywords.includes('problem')) {
-      return IMAGE_SOURCES.unsplash('solution,strategy');
+    if (keywords.includes("challenge") || keywords.includes("problem")) {
+      return IMAGE_SOURCES.unsplash("solution,strategy");
     }
-    if (keywords.includes('future') || keywords.includes('innovation')) {
-      return IMAGE_SOURCES.unsplash('future,innovation');
+    if (keywords.includes("future") || keywords.includes("innovation")) {
+      return IMAGE_SOURCES.unsplash("future,innovation");
     }
-    if (keywords.includes('team') || keywords.includes('people')) {
-      return IMAGE_SOURCES.unsplash('teamwork,collaboration');
+    if (keywords.includes("team") || keywords.includes("people")) {
+      return IMAGE_SOURCES.unsplash("teamwork,collaboration");
     }
   }
-  
+
   return undefined;
 }
 
@@ -142,7 +152,10 @@ Return JSON in this exact format:
                 type: "object",
                 properties: {
                   id: { type: "string" },
-                  type: { type: "string", enum: ["title", "content", "section"] },
+                  type: {
+                    type: "string",
+                    enum: ["title", "content", "section"],
+                  },
                   title: { type: "string" },
                   subtitle: { type: "string" },
                   content: {
@@ -164,127 +177,133 @@ Return JSON in this exact format:
 
     if (rawJson) {
       const data: SlideGenerationResponse = JSON.parse(rawJson);
-      
+
       // Enhance slides with image URLs
-      data.slides = data.slides.map(slide => ({
+      data.slides = data.slides.map((slide) => ({
         ...slide,
         imageUrl: generateImageUrl(slide, data.title),
       }));
-      
+
       return data;
     } else {
       throw new Error("Empty response from model");
     }
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    
-    if (error?.message?.includes('429') || error?.message?.includes('quota') || error?.message?.includes('RESOURCE_EXHAUSTED')) {
+
+    if (
+      error?.message?.includes("429") ||
+      error?.message?.includes("quota") ||
+      error?.message?.includes("RESOURCE_EXHAUSTED")
+    ) {
       console.log("Quota exceeded, using fallback mock presentation");
       return generateMockPresentation(prompt);
     }
-    
-    throw new Error(`Failed to generate presentation: ${error.message || error}`);
+
+    throw new Error(
+      `Failed to generate presentation: ${error.message || error}`
+    );
   }
 }
 
 // Enhanced fallback mock presentation with images
 function generateMockPresentation(prompt: string): SlideGenerationResponse {
   const topicMatch = prompt.match(/about\s+([^.?!]+)/i);
-  const topic = topicMatch ? topicMatch[1].trim() : 'Your Topic';
-  
+  const topic = topicMatch ? topicMatch[1].trim() : "Your Topic";
+
   const slides: Slide[] = [
     {
-      id: 'slide-1',
-      type: 'title',
+      id: "slide-1",
+      type: "title",
       title: topic,
-      subtitle: 'A Comprehensive Overview',
+      subtitle: "A Comprehensive Overview",
       imageUrl: IMAGE_SOURCES.unsplash(topic),
     },
     {
-      id: 'slide-2',
-      type: 'content',
-      title: 'Introduction',
+      id: "slide-2",
+      type: "content",
+      title: "Introduction",
       content: [
         `${topic} is revolutionizing the industry`,
-        'Understanding core principles and foundations',
-        'Rapid growth and widespread adoption',
-        'Key stakeholders and market dynamics',
+        "Understanding core principles and foundations",
+        "Rapid growth and widespread adoption",
+        "Key stakeholders and market dynamics",
       ],
     },
     {
-      id: 'slide-3',
-      type: 'section',
-      title: 'Core Concepts',
-      imageUrl: IMAGE_SOURCES.unsplash('abstract,technology'),
+      id: "slide-3",
+      type: "section",
+      title: "Core Concepts",
+      imageUrl: IMAGE_SOURCES.unsplash("abstract,technology"),
     },
     {
-      id: 'slide-4',
-      type: 'content',
-      title: 'Fundamental Components',
+      id: "slide-4",
+      type: "content",
+      title: "Fundamental Components",
       content: [
-        'Primary building blocks and architecture',
-        'Integration points and dependencies',
-        'Technical requirements and specifications',
-        'Scalability and performance considerations',
-        'Best practices and industry standards',
+        "Primary building blocks and architecture",
+        "Integration points and dependencies",
+        "Technical requirements and specifications",
+        "Scalability and performance considerations",
+        "Best practices and industry standards",
       ],
     },
     {
-      id: 'slide-5',
-      type: 'content',
-      title: 'Key Benefits',
+      id: "slide-5",
+      type: "content",
+      title: "Key Benefits",
       content: [
-        'Increased efficiency by up to 40%',
-        'Cost reduction through automation',
-        'Enhanced user experience and satisfaction',
-        'Competitive advantage in the market',
-        'Measurable ROI within 6-12 months',
+        "Increased efficiency by up to 40%",
+        "Cost reduction through automation",
+        "Enhanced user experience and satisfaction",
+        "Competitive advantage in the market",
+        "Measurable ROI within 6-12 months",
       ],
-      imageUrl: IMAGE_SOURCES.unsplash('success,growth'),
+      imageUrl: IMAGE_SOURCES.unsplash("success,growth"),
     },
     {
-      id: 'slide-6',
-      type: 'section',
-      title: 'Implementation',
-      imageUrl: IMAGE_SOURCES.unsplash('strategy,planning'),
+      id: "slide-6",
+      type: "section",
+      title: "Implementation",
+      imageUrl: IMAGE_SOURCES.unsplash("strategy,planning"),
     },
     {
-      id: 'slide-7',
-      type: 'content',
-      title: 'Practical Applications',
+      id: "slide-7",
+      type: "content",
+      title: "Practical Applications",
       content: [
-        'Real-world use cases across industries',
-        'Enterprise deployment strategies',
-        'Small business implementation approaches',
-        'Integration with existing systems',
+        "Real-world use cases across industries",
+        "Enterprise deployment strategies",
+        "Small business implementation approaches",
+        "Integration with existing systems",
       ],
     },
     {
-      id: 'slide-8',
-      type: 'content',
-      title: 'Challenges & Solutions',
+      id: "slide-8",
+      type: "content",
+      title: "Challenges & Solutions",
       content: [
-        'Common obstacles and how to overcome them',
-        'Resource allocation and budgeting',
-        'Change management and team training',
-        'Risk mitigation strategies',
+        "Common obstacles and how to overcome them",
+        "Resource allocation and budgeting",
+        "Change management and team training",
+        "Risk mitigation strategies",
       ],
-      imageUrl: IMAGE_SOURCES.unsplash('solution,strategy'),
+      imageUrl: IMAGE_SOURCES.unsplash("solution,strategy"),
     },
     {
-      id: 'slide-9',
-      type: 'content',
-      title: 'Next Steps',
+      id: "slide-9",
+      type: "content",
+      title: "Next Steps",
       content: [
-        'Conduct thorough needs assessment',
-        'Develop phased implementation roadmap',
-        'Allocate budget and resources',
-        'Begin pilot program within 30 days',
-        'Measure success with clear KPIs',
+        "Conduct thorough needs assessment",
+        "Develop phased implementation roadmap",
+        "Allocate budget and resources",
+        "Begin pilot program within 30 days",
+        "Measure success with clear KPIs",
       ],
     },
   ];
-  
+
   return {
     title: topic,
     slides,
@@ -302,7 +321,11 @@ export async function updatePresentationSlides(
 CURRENT PRESENTATION:
 ${JSON.stringify(currentSlides, null, 2)}
 
-${slideIndex !== undefined ? `FOCUS: The user wants to edit slide at index ${slideIndex}. Pay special attention to this slide.` : ""}
+${
+  slideIndex !== undefined
+    ? `FOCUS: The user wants to edit slide at index ${slideIndex}. Pay special attention to this slide.`
+    : ""
+}
 
 EDITING GUIDELINES:
 1. Preserve slide IDs to maintain references (unless explicitly asked to add new slides)
@@ -364,37 +387,43 @@ IMPORTANT: Return the complete array of all slides, not just the modified ones.`
 
     if (rawJson) {
       let updatedSlides: Slide[] = JSON.parse(rawJson);
-      
+
       // Preserve or add image URLs
       updatedSlides = updatedSlides.map((slide, index) => {
-        const originalSlide = currentSlides.find(s => s.id === slide.id);
+        const originalSlide = currentSlides.find((s) => s.id === slide.id);
         return {
           ...slide,
-          imageUrl: originalSlide?.imageUrl || generateImageUrl(slide, currentSlides[0]?.title || 'Presentation'),
+          imageUrl:
+            originalSlide?.imageUrl ||
+            generateImageUrl(slide, currentSlides[0]?.title || "Presentation"),
         };
       });
-      
+
       return updatedSlides;
     } else {
       throw new Error("Empty response from model");
     }
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    
-    if (error?.message?.includes('429') || error?.message?.includes('quota') || error?.message?.includes('RESOURCE_EXHAUSTED')) {
+
+    if (
+      error?.message?.includes("429") ||
+      error?.message?.includes("quota") ||
+      error?.message?.includes("RESOURCE_EXHAUSTED")
+    ) {
       console.log("Quota exceeded during update, applying basic modification");
       const updatedSlides = currentSlides.map((slide, index) => {
         if (slideIndex !== undefined && index === slideIndex) {
           return {
             ...slide,
-            title: slide.title + ' (Updated)',
+            title: slide.title + " (Updated)",
           };
         }
         return slide;
       });
       return updatedSlides;
     }
-    
+
     throw new Error(`Failed to update slides: ${error.message || error}`);
   }
 }
@@ -408,13 +437,17 @@ export async function regenerateSlide(
   const slide = currentSlides[slideIndex];
   const context = currentSlides
     .filter((_, idx) => idx !== slideIndex)
-    .map(s => s.title)
-    .join(', ');
-  
+    .map((s) => s.title)
+    .join(", ");
+
   const prompt = `Regenerate slide "${slide.title}" in the context of a presentation about "${presentationTitle}". 
   Other slides in the presentation: ${context}.
   Make it more engaging, specific, and professional. Keep the same slide type (${slide.type}).`;
-  
-  const updatedSlides = await updatePresentationSlides(prompt, currentSlides, slideIndex);
+
+  const updatedSlides = await updatePresentationSlides(
+    prompt,
+    currentSlides,
+    slideIndex
+  );
   return updatedSlides[slideIndex];
 }
